@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Etapgorithm - Pardus ETAP Akıllı Tahta Akış Şeması Editörü</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/flow-shapes.css">
+    <script>
+        (function() {
+            try {
+                var savedTheme = localStorage.getItem('etapgorithm_theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {}
+        })();
+    </script>
+</head>
+
+<body>
+
+    <!-- Header Toolbar -->
+    <header class="toolbar">
+        <div class="brand">
+            <div class="brand-logo">
+                <!-- Flowchart Logo SVG -->
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="5" rx="1.5" />
+                    <rect x="14" y="3" width="7" height="5" rx="1.5" />
+                    <rect x="8.5" y="16" width="7" height="5" rx="1.5" />
+                    <path d="M6.5 8v4h11V8M12 12v4" stroke="white" stroke-width="2" fill="none" />
+                </svg>
+            </div>
+            <div class="brand-info">
+                <h1>Etapgorithm</h1>
+                <span class="brand-badge">Osman TÜRKMEN</span>
+            </div>
+        </div>
+
+        <!-- File Controls (Opens Dialog) -->
+        <div class="tool-group">
+            <button id="btn-file-menu" class="tool-btn" title="Dosya İşlemleri (Yeni, Aç, Kaydet)" type="button">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" />
+                </svg>
+                Dosya
+            </button>
+            <input type="file" id="file-input" accept=".fprg,.xml" style="display: none;">
+        </div>
+
+        <!-- Functions Management Controls -->
+        <div class="tool-group">
+            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Fonksiyon:</span>
+            <select id="select-function" class="tool-select">
+                <option value="Main">Ana Program (Main)</option>
+            </select>
+            <button id="btn-add-function" class="tool-btn" title="Yeni Fonksiyon Ekle">+ Fonksiyon</button>
+            <button id="btn-manage-function" class="tool-btn" title="Aktif Fonksiyonu Düzenle">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path
+                        d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Execution & Simulator Controls -->
+        <div class="tool-group">
+            <button id="btn-run" class="tool-btn btn-run" title="Algoritmayı Çalıştır (F5)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M8 5v14l11-7z" />
+                </svg>
+                Başlat
+            </button>
+            <button id="btn-step" class="tool-btn btn-step" title="Adım Adım İlerlet (F10)">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M4 19h2V5H4v14zm4-7l9 6V6l-9 6zm9-7h2v14h-2V5z" />
+                </svg>
+                Adım Adım
+            </button>
+            <button id="btn-stop" class="tool-btn btn-stop" title="Çalışmayı Durdur">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M6 6h12v12H6z" />
+                </svg>
+                Durdur
+            </button>
+            <div class="speed-control">
+                <span>Hız:</span>
+                <select id="select-speed">
+                    <option value="1200">Çok Yavaş</option>
+                    <option value="600" selected>Normal</option>
+                    <option value="250">Hızlı</option>
+                    <option value="15">Çok Hızlı</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Examples & Utilities -->
+        <div class="tool-group">
+            <div class="speed-control">
+                <span>Örnekler:</span>
+                <select id="select-examples">
+                    <option value="" selected>Bir örnek seçin...</option>
+                </select>
+            </div>
+            <button id="btn-fullscreen" class="tool-btn" title="Tam Ekran (Akıllı Tahta Modu)">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                </svg>
+            </button>
+            <button id="btn-toggle-sidebar" class="tool-btn" title="Sağ Paneli Gizle / Göster">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM15 7h2v10h-2V7z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Workspace Area -->
+    <main class="workspace">
+        <!-- SVG Canvas Area -->
+        <div class="canvas-container" id="canvas-container">
+            <!-- Floating Selection Count Badge -->
+            <div id="selection-badge" class="selection-badge" style="display: none;">0 Seçili</div>
+            <svg id="flowchart-svg" xmlns="http://www.w3.org/2000/svg">
+                <!-- Generated dynamically by FlowchartRenderer -->
+            </svg>
+            <!-- Rubberband / Marquee Multi-Selection Box -->
+            <div id="selection-marquee" class="selection-marquee" style="display: none;"></div>
+        </div>
+
+        <!-- Floating Action Buttons for Theme, Zoom & Reset (Fixed to bottom-left corner of workspace, never scrolls) -->
+        <div class="canvas-fab-group">
+            <div class="fab-theme-wrapper" title="Renk Teması Seç">
+                <button class="fab-btn fab-btn-theme" id="btn-theme-fab" title="Renk Teması Seç">🌙</button>
+                <select id="select-theme" class="fab-theme-select-overlay" title="Renk Teması Seç">
+                    <option value="classic">🎨 Klasik Açık (Standart)</option>
+                    <option value="dark" selected>🌙 Koyu (Modern)</option>
+                    <option value="pastel">🌸 Pastel (Yumuşak)</option>
+                    <option value="print">📄 Yazıcı (Siyah - Beyaz)</option>
+                    <option value="neon">⚡ Neon (Canlı Siber)</option>
+                    <option value="retro">📻 Retro Terminal (Yeşil Monitör)</option>
+                    <option value="ocean">🌊 Okyanus (Mavi & Turkuaz)</option>
+                    <option value="sunset">🌅 Gün Batımı (Sıcak Tonlar)</option>
+                    <option value="blueprint">📐 Mavi Taslak (Blueprint)</option>
+                    <option value="couture">💎 Zarif (Couture)</option>
+                </select>
+            </div>
+            <button class="fab-btn" id="btn-zoom-in" title="Yakınlaştır (Ctrl + Scroll Yukarı)">+</button>
+            <div class="fab-zoom-badge" id="zoom-percentage-badge" title="Mevcut Yakınlaştırma Oranı">%100</div>
+            <button class="fab-btn" id="btn-zoom-out" title="Uzaklaştır (Ctrl + Scroll Aşağı)">−</button>
+            <button class="fab-btn" id="btn-zoom-reset" title="Sıfırla (%100)" style="font-size: 0.85rem;">1:1</button>
+        </div>
+
+        <!-- Draggable Resizer Splitter between Canvas and Sidebar -->
+        <div class="sidebar-resizer" id="sidebar-resizer" title="Genişletmek veya daraltmak için sürükleyin"></div>
+
+        <!-- Right Side Panel (Variables, Console, Code) -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="tab-console">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path
+                            d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10l4 4-4 4 1.4 1.4 5.4-5.4-5.4-5.4L6 10zm6 6h6v2h-6z" />
+                    </svg>
+                    Konsol
+                </button>
+                <button class="sidebar-tab" data-tab="tab-variables">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path
+                            d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
+                    </svg>
+                    Değişkenler
+                </button>
+                <button class="sidebar-tab" data-tab="tab-code">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path
+                            d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+                    </svg>
+                    Kod Çıktısı
+                </button>
+            </nav>
+
+            <div class="sidebar-content">
+                <!-- Tab: Console -->
+                <div class="tab-pane active" id="tab-console">
+                    <div class="console-box" id="console-box">
+                        <div class="log-item log-system">Etapgorithm hazır. Akış şeması çizip "Başlat" butonuna
+                            dokunarak çalıştırabilirsiniz.</div>
+                    </div>
+                </div>
+
+                <!-- Tab: Variables -->
+                <div class="tab-pane" id="tab-variables">
+                    <table class="variables-table">
+                        <thead>
+                            <tr>
+                                <th>Değişken</th>
+                                <th>Tür</th>
+                                <th>Değer</th>
+                            </tr>
+                        </thead>
+                        <tbody id="variables-tbody">
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: #64748b;">Henüz tanımlı değişken yok
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab: Code Generator -->
+                <div class="tab-pane" id="tab-code">
+                    <div class="code-header">
+                        <select id="select-code-lang" class="code-lang-select">
+                            <option value="python" selected>Python 3</option>
+                            <option value="cpp">C++</option>
+                            <option value="js">JavaScript</option>
+                            <option value="pseudo">Türkçe Sözde Kod (MEB)</option>
+                        </select>
+                    </div>
+                    <pre class="code-box" id="code-box"></pre>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Modal: Add Node Palette -->
+    <div class="modal-overlay" id="modal-add-node">
+        <div class="modal-card modal-palette-card">
+            <div class="modal-header">
+                <div class="modal-title-with-icon">
+                    <span class="palette-header-icon">+</span>
+                    <div>
+                        <h2>Araya Şekil Ekle</h2>
+                        <p class="modal-subtitle">Akış şemasına eklemek istediğiniz bloğu seçin</p>
+                    </div>
+                </div>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body palette-body">
+
+                <!-- Clipboard Paste Option (Visible when clipboard has a block) -->
+                <div class="palette-paste-banner" id="palette-paste-banner" style="display: none;">
+                    <button type="button" class="palette-item palette-item-paste" id="btn-palette-paste">
+                        <div class="palette-shape-preview">
+                            <svg viewBox="0 0 76 34" width="76" height="34">
+                                <rect x="6" y="5" width="64" height="24" rx="4" fill="#1e3a8a" stroke="#60a5fa"
+                                    stroke-width="2" stroke-dasharray="4,3" />
+                                <text x="38" y="21" fill="#93c5fd" font-size="11" font-weight="bold"
+                                    text-anchor="middle">Yapıştır</text>
+                            </svg>
+                        </div>
+                        <div class="palette-info">
+                            <h3>Panodaki Bloğu Yapıştır</h3>
+                            <p id="paste-item-description">Kopyalanan bloğu buraya ekle</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Category 1: Değişkenler (Variables) - En Üstte -->
+                <div class="palette-section">
+                    <div class="palette-section-title">
+                        <span class="section-badge section-vars">DEĞİŞKENLER</span>
+                    </div>
+                    <div class="palette-row">
+                        <button type="button" class="palette-item" data-type="declare">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <rect x="4" y="4" width="68" height="26" rx="4" fill="#78350f" stroke="#d97706"
+                                        stroke-width="2" />
+                                    <line x1="4" y1="11" x2="72" y2="11" stroke="#d97706" stroke-width="1.5" />
+                                    <text x="38" y="23" fill="#fbbf24" font-size="11" font-weight="bold"
+                                        text-anchor="middle">Tanımla</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>Declare (Tanımla)</h3>
+                                <p>Yeni değişken oluşturur</p>
+                            </div>
+                        </button>
+
+                        <button type="button" class="palette-item" data-type="assign">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <rect x="4" y="4" width="68" height="26" rx="4" fill="#7c2d12" stroke="#ea580c"
+                                        stroke-width="2" />
+                                    <text x="38" y="21" fill="#fb923c" font-size="11" font-weight="bold"
+                                        text-anchor="middle">Atama</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>Assign (Atama)</h3>
+                                <p>Değişkene değer atar</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category 2: Giriş / Çıkış (I/O) -->
+                <div class="palette-section">
+                    <div class="palette-section-title">
+                        <span class="section-badge section-io">GİRİŞ / ÇIKIŞ</span>
+                    </div>
+                    <div class="palette-row">
+                        <button type="button" class="palette-item" data-type="input">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <polygon points="12,3 73,3 64,31 3,31" fill="#0c4a6e" stroke="#0284c7"
+                                        stroke-width="2" />
+                                    <text x="38" y="21" fill="#38bdf8" font-size="11" font-weight="bold"
+                                        text-anchor="middle">Girdi</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>Input (Girdi)</h3>
+                                <p>Kullanıcıdan veri alır</p>
+                            </div>
+                        </button>
+
+                        <button type="button" class="palette-item" data-type="output">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <polygon points="3,3 64,3 73,31 12,31" fill="#064e3b" stroke="#059669"
+                                        stroke-width="2" />
+                                    <text x="38" y="21" fill="#34d399" font-size="11" font-weight="bold"
+                                        text-anchor="middle">Çıktı</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>Output (Çıktı)</h3>
+                                <p>Ekrana sonuç yazdırır</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category 3: Denetim ve Döngüler (Control & Loops) -->
+                <div class="palette-section">
+                    <div class="palette-section-title">
+                        <span class="section-badge section-control">DENETİM & DÖNGÜLER</span>
+                    </div>
+                    <div class="palette-row palette-row-3">
+                        <button type="button" class="palette-item" data-type="if">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <polygon points="38,3 72,17 38,31 4,17" fill="#581c87" stroke="#a855f7"
+                                        stroke-width="2" />
+                                    <text x="38" y="21" fill="#c084fc" font-size="11" font-weight="bold"
+                                        text-anchor="middle">Eğer</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>If (Eğer)</h3>
+                                <p>Koşullu karar</p>
+                            </div>
+                        </button>
+
+                        <button type="button" class="palette-item" data-type="while">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <polygon points="12,4 64,4 72,17 64,30 12,30 4,17" fill="#3b0764" stroke="#9333ea"
+                                        stroke-width="2" />
+                                    <text x="38" y="21" fill="#e879f9" font-size="11" font-weight="bold"
+                                        text-anchor="middle">İken</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>While (İken)</h3>
+                                <p>Koşullu döngü</p>
+                            </div>
+                        </button>
+
+                        <button type="button" class="palette-item" data-type="for">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <polygon points="12,4 64,4 72,17 64,30 12,30 4,17" fill="#312e81" stroke="#6366f1"
+                                        stroke-width="2" />
+                                    <text x="38" y="21" fill="#a5b4fc" font-size="11" font-weight="bold"
+                                        text-anchor="middle">İçin</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>For (İçin)</h3>
+                                <p>Sayaçlı döngü</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category 4: Alt Programlar ve Açıklama -->
+                <div class="palette-section">
+                    <div class="palette-section-title">
+                        <span class="section-badge section-other">ALT PROGRAM VE NOT</span>
+                    </div>
+                    <div class="palette-row">
+                        <button type="button" class="palette-item" data-type="call">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <rect x="4" y="4" width="68" height="26" rx="4" fill="#134e4a" stroke="#14b8a6"
+                                        stroke-width="2" />
+                                    <line x1="14" y1="4" x2="14" y2="30" stroke="#14b8a6" stroke-width="1.5" />
+                                    <line x1="62" y1="4" x2="62" y2="30" stroke="#14b8a6" stroke-width="1.5" />
+                                    <text x="38" y="21" fill="#2dd4bf" font-size="10" font-weight="bold"
+                                        text-anchor="middle">Çağır</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>Call (Çağır)</h3>
+                                <p>Fonksiyon çağırır</p>
+                            </div>
+                        </button>
+
+                        <button type="button" class="palette-item" data-type="comment">
+                            <div class="palette-shape-preview">
+                                <svg viewBox="0 0 76 34" width="76" height="34">
+                                    <rect x="4" y="4" width="68" height="26" rx="4" fill="#1e293b" stroke="#94a3b8"
+                                        stroke-width="1.5" stroke-dasharray="4,3" />
+                                    <text x="38" y="21" fill="#cbd5e1" font-size="11" font-weight="bold"
+                                        text-anchor="middle">// Not</text>
+                                </svg>
+                            </div>
+                            <div class="palette-info">
+                                <h3>Comment (Açıklama)</h3>
+                                <p>Şemaya not ekler</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Function Manager (Add/Edit Custom Subroutine) -->
+    <div class="modal-overlay" id="modal-function-manager">
+        <div class="modal-card" style="max-width: 580px;">
+            <div class="modal-header">
+                <h2 id="function-modal-title">Fonksiyon Yöneticisi</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="fn-old-name" value="">
+                <div class="form-group">
+                    <label>Fonksiyon Adı (Türkçe karakter veya boşluksuz):</label>
+                    <input type="text" id="fn-name-input" class="form-input"
+                        placeholder="Örn: KareAl, Topla, Faktoriyel">
+                </div>
+                <div class="form-group">
+                    <label>Dönüş Türü (Return Type):</label>
+                    <div class="type-buttons" id="fn-return-type-buttons">
+                        <button type="button" class="type-btn active" data-type="None">Yok (None)</button>
+                        <button type="button" class="type-btn" data-type="Integer">Tamsayı</button>
+                        <button type="button" class="type-btn" data-type="Real">Reel</button>
+                        <button type="button" class="type-btn" data-type="String">Metin</button>
+                        <button type="button" class="type-btn" data-type="Boolean">Mantıksal</button>
+                    </div>
+                </div>
+                <div class="form-group" id="fn-return-var-group" style="display: none;">
+                    <label>Geri Dönüş Değişkeni Adı (Sonucun aktarılacağı değişken):</label>
+                    <input type="text" id="fn-return-var-input" class="form-input" placeholder="Örn: sonuc">
+                </div>
+                <div class="form-group">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="margin: 0;">Parametreler:</label>
+                        <button type="button" class="btn-secondary" id="btn-add-param"
+                            style="padding: 4px 12px; font-size: 0.85rem;">+ Parametre Ekle</button>
+                    </div>
+                    <div id="fn-params-list" style="display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Dynamic parameters list -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button type="button" class="btn-secondary" id="btn-delete-function"
+                    style="color: #f87171; border-color: rgba(239, 68, 68, 0.4); display: none;">Fonksiyonu Sil</button>
+                <div style="display: flex; gap: 10px; margin-left: auto;">
+                    <button type="button" class="btn-secondary btn-modal-cancel">İptal</button>
+                    <button type="button" class="btn-primary" id="btn-save-function">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Node Properties -->
+    <div class="modal-overlay" id="modal-edit-node">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="edit-node-title">Bloğu Düzenle</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="edit-node-fields">
+                <!-- Dynamically generated based on selected node type -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-modal-cancel">İptal</button>
+                <button class="btn-primary" id="btn-save-edit">Kaydet ve Uygula</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Touch Input Prompt (Smartboard friendly dialog with Numpad) -->
+    <div class="modal-overlay" id="modal-prompt-input">
+        <div class="modal-card" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2>Veri Girişi: <span id="prompt-var-name" style="color: #60a5fa;"></span></h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 12px; font-size: 1rem; color: #94a3b8;">Klavyeyle veya aşağıdaki butonlara
+                    basarak değer girin:</p>
+                <input type="text" id="prompt-input-value" class="form-input" placeholder="Değer yazınız...">
+
+                <!-- Quick Numpad for Touchscreen Boards -->
+                <div class="numpad-grid">
+                    <button class="numpad-key" data-key="1">1</button>
+                    <button class="numpad-key" data-key="2">2</button>
+                    <button class="numpad-key" data-key="3">3</button>
+                    <button class="numpad-key" data-key="4">4</button>
+                    <button class="numpad-key" data-key="5">5</button>
+                    <button class="numpad-key" data-key="6">6</button>
+                    <button class="numpad-key" data-key="7">7</button>
+                    <button class="numpad-key" data-key="8">8</button>
+                    <button class="numpad-key" data-key="9">9</button>
+                    <button class="numpad-key" data-key="-">-</button>
+                    <button class="numpad-key" data-key="0">0</button>
+                    <button class="numpad-key" data-key=".">.</button>
+                    <button class="numpad-key" data-key="clear" style="color: #f87171;">Temizle</button>
+                    <button class="numpad-key" data-key="back" style="grid-column: span 2;">⌫ Sil</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="btn-submit-input" style="width: 100%;">Tamam (Giriş Yap)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Custom Alert / Confirm Dialog (Replaces browser alert & confirm) -->
+    <div class="modal-overlay" id="modal-custom-dialog" style="z-index: 10000; display: none;">
+        <div class="modal-card modal-dialog-card">
+            <div class="dialog-icon-wrapper" id="dialog-icon-wrapper">
+                <svg id="dialog-icon-svg" viewBox="0 0 24 24" width="44" height="44" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+            </div>
+            <h2 id="dialog-title">Uyarı</h2>
+            <p id="dialog-message">Mesaj...</p>
+            <div class="dialog-actions" id="dialog-actions">
+                <button type="button" class="btn-secondary" id="btn-dialog-cancel" style="display: none;">Vazgeç</button>
+                <button type="button" class="btn-primary" id="btn-dialog-confirm">Tamam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Dosya İşlemleri (File Operations Dialog) -->
+    <div class="modal-overlay" id="modal-file-operations" style="display: none;">
+        <div class="modal-card modal-file-card">
+            <div class="modal-header">
+                <div class="modal-title-with-icon">
+                    <div class="palette-header-icon file-modal-icon">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Dosya İşlemleri</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Yeni akış başlatın, dosya açın veya kaydedin</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" title="Kapat">&times;</button>
+            </div>
+            <div class="modal-body file-modal-body">
+                <div class="file-action-list">
+                    <button type="button" class="file-action-card" id="btn-new">
+                        <div class="file-action-icon action-new">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                        </div>
+                        <div class="file-action-info">
+                            <div class="file-action-title">
+                                <span>Yeni Boş Akış</span>
+                                <span class="file-action-badge badge-blue">Sıfırla</span>
+                            </div>
+                            <p class="file-action-desc">Mevcut şemayı temizler ve yeni boş bir akış oluşturur.</p>
+                        </div>
+                        <div class="file-action-arrow">›</div>
+                    </button>
+
+                    <button type="button" class="file-action-card" id="btn-open">
+                        <div class="file-action-icon action-open">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                            </svg>
+                        </div>
+                        <div class="file-action-info">
+                            <div class="file-action-title">
+                                <span>Algoritma Dosyası Aç (.fprg)</span>
+                                <span class="file-action-badge badge-amber">Yükle</span>
+                            </div>
+                            <p class="file-action-desc">Cihazınızdaki standart .fprg veya .xml uzantılı bir akış şemasını yükler.</p>
+                        </div>
+                        <div class="file-action-arrow">›</div>
+                    </button>
+
+                    <button type="button" class="file-action-card" id="btn-save-fprg">
+                        <div class="file-action-icon action-save">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                            </svg>
+                        </div>
+                        <div class="file-action-info">
+                            <div class="file-action-title">
+                                <span>Akış Şemasını Kaydet (.fprg)</span>
+                                <span class="file-action-badge badge-green">Kaydet</span>
+                            </div>
+                            <p class="file-action-desc">Mevcut akışı standart .fprg formatında bilgisayarınıza kaydeder.</p>
+                        </div>
+                        <div class="file-action-arrow">›</div>
+                    </button>
+
+                    <button type="button" class="file-action-card" id="btn-help">
+                        <div class="file-action-icon" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3);">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
+                            </svg>
+                        </div>
+                        <div class="file-action-info">
+                            <div class="file-action-title">
+                                <span>Kullanım Kılavuzu & Yardım</span>
+                                <span class="file-action-badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.4);">Kılavuz</span>
+                            </div>
+                            <p class="file-action-desc">Tüm akış blokları, operatörler ve kullanım rehberi.</p>
+                        </div>
+                        <div class="file-action-arrow">›</div>
+                    </button>
+
+                    <button type="button" class="file-action-card" id="btn-about">
+                        <div class="file-action-icon action-about" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                            </svg>
+                        </div>
+                        <div class="file-action-info">
+                            <div class="file-action-title">
+                                <span>Etapgorithm Hakkında</span>
+                                <span class="file-action-badge badge-purple" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">Bilgi</span>
+                            </div>
+                            <p class="file-action-desc">Sürüm, geliştirici ve yazılım hakkında detaylı bilgi.</p>
+                        </div>
+                        <div class="file-action-arrow">›</div>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: flex-end;">
+                <button type="button" class="btn-secondary btn-modal-cancel">Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Hakkında (About) -->
+    <div class="modal-overlay" id="modal-about" style="display: none;">
+        <div class="modal-card" style="max-width: 540px; border-radius: 16px;">
+            <div class="modal-header" style="border-bottom: 2px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="brand-logo" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #3b82f6, #8b5cf6);">
+                        <svg viewBox="0 0 24 24" width="26" height="26" fill="none">
+                            <rect x="3" y="3" width="7" height="5" rx="1.5" fill="#10b981" />
+                            <rect x="14" y="3" width="7" height="5" rx="1.5" fill="#f59e0b" />
+                            <rect x="8.5" y="16" width="7" height="5" rx="1.5" fill="#ef4444" />
+                            <path d="M6.5 8v4h11V8M12 12v4" stroke="white" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.35rem; margin: 0; color: var(--text-primary);">Etapgorithm</h2>
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">Sürüm 1.0.0 (Windows & MEB Pardus ETAP)</span>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" title="Kapat">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                <div style="background-color: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 18px; border-left: 5px solid #3b82f6;">
+                    <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 8px; font-weight: 700;">Geliştirici & Tasarım</h3>
+                    <p style="font-size: 1.1rem; font-weight: 700; color: #60a5fa; margin: 0 0 8px 0;">Osman TÜRKMEN</p>
+                    <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); margin: 0;">
+                        Bu yazılım; <strong>öğretmenlerimizin ve öğrencilerimizin</strong> akıllı tahtalarda ve bilgisayarlarda algoritma mantığını ve akış şemalarını kolayca öğrenip geliştirebilmeleri amacıyla <strong>Osman TÜRKMEN</strong> tarafından özel olarak hazırlanmıştır.
+                    </p>
+                </div>
+
+                <div style="background-color: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+                    <h4 style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Temel Yetenekler</h4>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem; line-height: 1.8; color: var(--text-primary);">
+                        <li>Tamamen çevrimdışı (offline) ve internet gerektirmeyen bağımsız mimari</li>
+                        <li>MEB Fatih Projesi Pardus ETAP akıllı tahta dokunmatik optimizasyonu</li>
+                        <li>Akıllı tahta dokunmatik sanal klavye & eldivensiz çizim desteği</li>
+                        <li>10 farklı zengin renk teması (Klasik Açık, Koyu, Pastel, Yazıcı vb.)</li>
+                        <li>Python, C++, JavaScript ve Sözde Kod (Pseudocode) anında kod üretimi</li>
+                        <li>Standart <code>.fprg</code> akış şeması dosyalarını açma ve kaydetme</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--border);">
+                <button type="button" class="btn-primary btn-modal-cancel" style="min-width: 100px;">Tamam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Kullanım Kılavuzu & Yardım -->
+    <div class="modal-overlay" id="modal-help-guide" style="display: none;">
+        <div class="modal-card modal-help-card">
+            <div class="modal-header">
+                <div class="modal-title-with-icon">
+                    <div class="palette-header-icon help-modal-icon">
+                        ?
+                    </div>
+                    <div>
+                        <h2>Etapgorithm Kullanım Kılavuzu</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Pardus ETAP ve Web için tüm bloklar, operatörler, kurallar ve fonksiyonlar</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" title="Kapat">&times;</button>
+            </div>
+            <div class="modal-body help-modal-body">
+                <!-- Section 1: Akış Şeması Blokları -->
+                <div class="help-section">
+                    <div class="help-section-header">
+                        <span style="font-size: 1.4rem;">📌</span>
+                        <h3 class="help-section-title">Akış Şeması Blokları ve Kullanımları</h3>
+                    </div>
+                    <div class="help-grid-2">
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #60a5fa;">
+                                <span class="help-code-pill">Input (Girdi)</span>
+                            </div>
+                            <p class="help-block-desc">Kullanıcıdan veri alır (örn: <code class="help-code-pill">sayi</code>). Klavyeyle veya akıllı tahtadaki sanal sayı tuşlarıyla değer girilebilir.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #34d399;">
+                                <span class="help-code-pill">Output (Çıktı)</span>
+                            </div>
+                            <p class="help-block-desc">Ekrana metin veya hesaplanan değerleri yazdırır (örn: <code class="help-code-pill">"Sonuç: " & toplam</code>). Yeni satır tercihi seçilebilir.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #fbbf24;">
+                                <span class="help-code-pill">Declare (Tanımla)</span>
+                            </div>
+                            <p class="help-block-desc">Değişken adını ve türünü (Tamsayı, Reel, Metin, Mantıksal) tanımlar. Virgülle birden çok değişken yazılabilir: <code class="help-code-pill">a, b, c</code>.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #f87171;">
+                                <span class="help-code-pill">Assign (Atama)</span>
+                            </div>
+                            <p class="help-block-desc">Değişkene matematiksel veya mantıksal bir değer atar (örn: <code class="help-code-pill">toplam = toplam + sayi</code> ya da <code class="help-code-pill">sonuc = sayi^3</code>).</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #fb923c;">
+                                <span class="help-code-pill">If (Eğer)</span>
+                            </div>
+                            <p class="help-block-desc">Koşula bağlı olarak Doğru (True) veya Yanlış (False) dallanması oluşturur (örn: <code class="help-code-pill">sayi > 0</code>, <code class="help-code-pill">not >= 50 && devam < 10</code>).</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #a855f7;">
+                                <span class="help-code-pill">For (İçin)</span>
+                            </div>
+                            <p class="help-block-desc">Sayaçlı döngüdür. Başlangıç, Bitiş, <strong>Artan / Azalan yönü</strong> ve Adım miktarını belirleyerek ileri veya geri sayım yapabilir.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #ec4899;">
+                                <span class="help-code-pill">While (İken)</span>
+                            </div>
+                            <p class="help-block-desc">Koşulu en başta denetler; koşul doğru olduğu sürece blok içindeki adımları tekrar eder.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #6366f1;">
+                                <span class="help-code-pill">Do (Yap)</span>
+                            </div>
+                            <p class="help-block-desc">Döngü gövdesini en az bir defa çalıştırır; koşulu döngünün sonunda denetler.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #14b8a6;">
+                                <span class="help-code-pill">Call (Çağır)</span>
+                            </div>
+                            <p class="help-block-desc">Tanımlı alt fonksiyonları parametre göndererek çalıştırır (örn: <code class="help-code-pill">KupAl(sayi)</code> veya <code class="help-code-pill">Temizle()</code>).</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title" style="color: #eab308;">
+                                <span class="help-code-pill">Comment (Açıklama)</span>
+                            </div>
+                            <p class="help-block-desc">Akış şeması üzerine açıklayıcı not kartları ekler; algoritma çalışmasını etkilemez.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Değişken Kuralları ve Katı Hata Denetimi -->
+                <div class="help-section">
+                    <div class="help-section-header">
+                        <span style="font-size: 1.4rem;">⚠️</span>
+                        <h3 class="help-section-title">Değişken Kuralları ve Katı Hata Denetimleri</h3>
+                    </div>
+                    <div class="help-alert-box">
+                        <p><strong>1. Tanımlanmamış Değişken Hatası:</strong> Bir değişkeni kullanabilmek için akışın başında mutlaka <code>Tanımla (Declare)</code> bloğu ile tanımlanmış olması zorunludur. Tanımlanmamış değişkenler simülatörde kırmızı hata üretir.</p>
+                    </div>
+                    <div class="help-alert-box">
+                        <p><strong>2. Değer Atanmadı / Başlatılmamış (Null) Değişken Hatası:</strong> Değişken tanımlanmış olsa dahi, bir <code>Atama</code> veya <code>Girdi</code> bloğuyla başlangıç değeri verilmeden herhangi bir hesaplama veya işlemde kullanılamaz (örn: <code>toplam + sayi</code> işleminde <code>toplam</code> henüz başlatılmamışsa hata verir).</p>
+                    </div>
+                    <div class="help-alert-box info">
+                        <p><strong>3. Fonksiyon Değişkenleri ve Kapsam (Scope):</strong> Fonksiyonlara gönderilen parametreler çağrıldığında otomatik olarak atanır. Fonksiyon geri dönüş değişkeni tanımlandığında fonksiyon içinde değer verilerek sonuç döndürülür.</p>
+                    </div>
+                </div>
+
+                <!-- Section 3: Operatörler ve İfadeler -->
+                <div class="help-section">
+                    <div class="help-section-header">
+                        <span style="font-size: 1.4rem;">⚡</span>
+                        <h3 class="help-section-title">Matematiksel ve Mantıksal Operatörler</h3>
+                    </div>
+                    <table class="help-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 140px;">Operatör</th>
+                                <th>Görevi & Anlamı</th>
+                                <th>Örnek Kullanım</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code class="help-code-pill">^</code></td>
+                                <td><strong>Üs Alma (Kuvvet):</strong> Standart matematiksel üs alma operatörüdür.</td>
+                                <td><code>sayi^3</code>, <code>2^8 -> 256</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">+</code></td>
+                                <td><strong>Toplama & Metin Birleştirme:</strong> Sayıları toplar, metinlerde bağlama yapar.</td>
+                                <td><code>10 + 20 -> 30</code>, <code>"Not: " + 85</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">&</code></td>
+                                <td><strong>Metin Birleştirme:</strong> Metin ve değişkenleri kesin olarak birbirine bağlar.</td>
+                                <td><code>"Toplam: " & toplam & " TL"</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">mod</code> veya <code class="help-code-pill">%</code></td>
+                                <td><strong>Mod (Kalan):</strong> Bölme işleminden kalanı verir.</td>
+                                <td><code>sayi mod 2 == 0</code> (Çift sayı)</td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">-</code>, <code class="help-code-pill">*</code>, <code class="help-code-pill">/</code></td>
+                                <td><strong>Temel Matematik:</strong> Çıkarma, çarpma ve bölme işlemleri.</td>
+                                <td><code>(taban * yukseklik) / 2</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">==</code>, <code class="help-code-pill">!=</code></td>
+                                <td><strong>Eşitlik / Farklılık:</strong> Eşit mi, eşit değil mi?</td>
+                                <td><code>x == 10</code>, <code>cevap != "E"</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">&lt;</code>, <code class="help-code-pill">&lt;=</code>, <code class="help-code-pill">&gt;</code>, <code class="help-code-pill">&gt;=</code></td>
+                                <td><strong>Karşılaştırma:</strong> Küçüktür, küçük eşittir, büyüktür, büyük eşittir.</td>
+                                <td><code>yas >= 18</code>, <code>puan < 50</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">&&</code> / <code class="help-code-pill">and</code></td>
+                                <td><strong>Mantıksal VE:</strong> Her iki koşul da doğruysa doğrudur.</td>
+                                <td><code>vize >= 50 && final >= 50</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">||</code> / <code class="help-code-pill">or</code></td>
+                                <td><strong>Mantıksal VEYA:</strong> Koşullardan biri doğruysa doğrudur.</td>
+                                <td><code>kart == "VAR" || nakit >= 100</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="help-code-pill">!</code> / <code class="help-code-pill">not</code></td>
+                                <td><strong>Mantıksal DEĞİL:</strong> Koşulun tersini alır.</td>
+                                <td><code>!mezun</code>, <code>not (sayi == 0)</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Section 4: Dahili Fonksiyonlar -->
+                <div class="help-section">
+                    <div class="help-section-header">
+                        <span style="font-size: 1.4rem;">🧮</span>
+                        <h3 class="help-section-title">Dahili Matematik ve Metin Fonksiyonları (Büyük/Küçük Harf Bağımsız)</h3>
+                    </div>
+                    <div class="help-grid-2">
+                        <div>
+                            <h4 style="color: #60a5fa; margin-bottom: 8px;">Matematik Fonksiyonları</h4>
+                            <table class="help-table">
+                                <tbody>
+                                    <tr><td><code class="help-code-pill">Abs(x)</code></td><td>Mutlak değer alır</td></tr>
+                                    <tr><td><code class="help-code-pill">Sqrt(x)</code></td><td>Karekök hesaplar</td></tr>
+                                    <tr><td><code class="help-code-pill">Round(x)</code></td><td>En yakın tamsayıya yuvarlar</td></tr>
+                                    <tr><td><code class="help-code-pill">Floor(x)</code></td><td>Aşağı (taban) tamsayıya yuvarlar</td></tr>
+                                    <tr><td><code class="help-code-pill">Ceil(x)</code> / <code>Ceiling</code></td><td>Yukarı (tavan) tamsayıya yuvarlar</td></tr>
+                                    <tr><td><code class="help-code-pill">Int(x)</code></td><td>Ondalık kısmı atarak tam kısmı alır</td></tr>
+                                    <tr><td><code class="help-code-pill">Sin, Cos, Tan</code></td><td>Trigonometrik fonksiyonlar (Radyan)</td></tr>
+                                    <tr><td><code class="help-code-pill">ArcSin, ArcCos, ArcTan</code></td><td>Ters trigonometrik fonksiyonlar</td></tr>
+                                    <tr><td><code class="help-code-pill">Log(x)</code>, <code class="help-code-pill">Log10(x)</code></td><td>Doğal logaritma (ln) ve 10 tabanlı log</td></tr>
+                                    <tr><td><code class="help-code-pill">Sgn(x)</code></td><td>İşaret fonksiyonu (-1, 0, 1)</td></tr>
+                                    <tr><td><code class="help-code-pill">Random(n)</code></td><td>0 ile n-1 arası rastgele tamsayı</td></tr>
+                                    <tr><td><code class="help-code-pill">PI</code> / <code class="help-code-pill">pi</code></td><td>Pi sayısı (3.14159...)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <h4 style="color: #34d399; margin-bottom: 8px;">Metin & Dönüşüm Fonksiyonları</h4>
+                            <table class="help-table">
+                                <tbody>
+                                    <tr><td><code class="help-code-pill">Len(s)</code></td><td>Metnin karakter uzunluğunu verir</td></tr>
+                                    <tr><td><code class="help-code-pill">Char(s, i)</code></td><td>Metnin i. indeksindeki karakterini verir</td></tr>
+                                    <tr><td><code class="help-code-pill">ToChar(code)</code></td><td>Sayısal ASCII/Unicode kodunu karaktere çevirir</td></tr>
+                                    <tr><td><code class="help-code-pill">ToCode(c)</code></td><td>Karakterin sayısal kodunu verir</td></tr>
+                                    <tr><td><code class="help-code-pill">ToFixed(x, n)</code></td><td>Ondalıklı sayıyı n basamaklı metne çevirir</td></tr>
+                                    <tr><td><code class="help-code-pill">ToInteger(x)</code></td><td>Metin veya değeri tamsayıya çevirir</td></tr>
+                                    <tr><td><code class="help-code-pill">ToReal(x)</code></td><td>Metin veya değeri ondalıklı sayıya çevirir</td></tr>
+                                    <tr><td><code class="help-code-pill">ToString(x)</code></td><td>Herhangi bir değeri metne çevirir</td></tr>
+                                    <tr><td><code class="help-code-pill">Size(arr)</code></td><td>Dizinin eleman sayısını verir</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Fonksiyonlar ve Modüler Yapı -->
+                <div class="help-section">
+                    <div class="help-section-header">
+                        <span style="font-size: 1.4rem;">🧩</span>
+                        <h3 class="help-section-title">Fonksiyon Yönetimi ve Modüler Yapı</h3>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+                        Algoritmalarınızı daha okunaklı ve tekrar kullanılabilir parçalara ayırmak için üst bardaki <strong>+ Fonksiyon</strong> butonunu kullanabilirsiniz:
+                    </p>
+                    <div class="help-grid-3">
+                        <div class="help-block-card">
+                            <strong style="color: #60a5fa; display: block; margin-bottom: 6px;">1. Parametreler</strong>
+                            <p class="help-block-desc">Fonksiyonun ihtiyaç duyduğu girdiler parametre olarak tanımlanır. Fonksiyon çağrıldığında bu parametreler otomatik atanmış kabul edilir.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <strong style="color: #34d399; display: block; margin-bottom: 6px;">2. Geri Dönüş Değeri</strong>
+                            <p class="help-block-desc">Geri dönüş tipi (Tamsayı, Reel vb.) seçildiğinde fonksiyona özel bir dönüş değişkeni oluşur. Fonksiyon içinde bu değişkene değer atanarak sonuç ana programa iletilir.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <strong style="color: #fbbf24; display: block; margin-bottom: 6px;">3. Bağımsız Kapsam</strong>
+                            <p class="help-block-desc">Her fonksiyonun değişken havuzu kendine aittir (yerel kapsam). Ana program veya diğer fonksiyonların yerel değişkenleri birbiriyle karışmaz.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6: Akıllı Tahta, Dokunmatik & Kısayol Kolaylıkları -->
+                <div class="help-section">
+                    <div class="help-section-header">
+                        <span style="font-size: 1.4rem;">🖥️</span>
+                        <h3 class="help-section-title">Akıllı Tahta, Dokunmatik & Kısayol Kolaylıkları</h3>
+                    </div>
+                    <div class="help-grid-2">
+                        <div class="help-block-card">
+                            <div class="help-block-title">
+                                <span>🖱️ Sağ Tık & Dokunmatik Menü</span>
+                            </div>
+                            <p class="help-block-desc">Bir bloğa sağ tıkladığınızda veya akıllı tahtada parmağınızı basılı tuttuğunuzda <strong>Kopyala (Ctrl+C)</strong>, <strong>Kes (Ctrl+X)</strong>, <strong>Yapıştır (Ctrl+V)</strong> ve <strong>Sil (Del)</strong> menüsü açılır.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title">
+                                <span>📦 Çoklu Seçim & Toplu Silme</span>
+                            </div>
+                            <p class="help-block-desc"><code>Shift</code> tuşuyla veya tuval üzerinde fareyle çerçeve çizerek birden çok bloğu aynı anda seçebilir ve tek tıkla topluca silebilirsiniz. Toplu silmelerde onay uyarısı sorulur.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title">
+                                <span>✍️ Temiz Form Alanları</span>
+                            </div>
+                            <p class="help-block-desc">Blok ekleme pencerelerinde otomatik/gereksiz varsayılan metinler kaldırılmıştır; tüm giriş kutuları temiz ve odaklanmaya hazır açılır.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title">
+                                <span>💬 Özel Şık Pencereler</span>
+                            </div>
+                            <p class="help-block-desc">Tarayıcının standart gri açılır kutuları yerine koyu temalı, modern ve dokunmatik uyumlu özel onay pencereleri kullanılır.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title">
+                                <span>🔍 Akıcı Zoom & Hafıza</span>
+                            </div>
+                            <p class="help-block-desc">Tarayıcının kazara Ctrl+Scroll ile büyümesi engellenmiştir. Sol alttaki <code>+</code> ve <code>−</code> butonları yarı hassasiyette akıcı zoom yapar ve tahtada bıraktığınız zoom seviyesi otomatik hatırlanır.</p>
+                        </div>
+                        <div class="help-block-card">
+                            <div class="help-block-title">
+                                <span>💾 Kaydedilmemiş Değişiklik Güvencesi</span>
+                            </div>
+                            <p class="help-block-desc">Çalışmanızı kaydetmeden yeni akış açmaya veya sekmeyi kapatmaya çalıştığınızda sistem sizi özel onay penceresiyle uyarır.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">Etapgorithm v1.0 • Pardus ETAP Akıllı Tahta & Bilgisayar Uyumlu</span>
+                <button type="button" class="btn-primary btn-modal-cancel">Anladım, Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu (Right-Click & Touch Long-Press) -->
+    <div class="custom-context-menu" id="custom-context-menu" style="display: none;">
+        <div class="context-menu-item" id="ctx-edit">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            <span>Bloğu Düzenle</span>
+        </div>
+        <div class="context-menu-item" id="ctx-add-node">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <span>+ Araya Şekil Ekle...</span>
+        </div>
+        <div class="context-menu-item" id="ctx-cut">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3h-3z"/></svg>
+            <span>Kes</span>
+            <span class="ctx-shortcut">Ctrl+X</span>
+        </div>
+        <div class="context-menu-item" id="ctx-copy">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>Kopyala</span>
+            <span class="ctx-shortcut">Ctrl+C</span>
+        </div>
+        <div class="context-menu-item" id="ctx-paste">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 2h-4.18C14.4 0.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/></svg>
+            <span>Yapıştır</span>
+            <span class="ctx-shortcut">Ctrl+V</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" id="ctx-select-all">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M3 5h2V3c-1.1 0-2 .9-2 2zm0 8h2v-2H3v2zm4 8h2v-2H7v2zM3 9h2V7H3v2zm10-6h-2v2h2V3zm6 0v2h2c0-1.1-.9-2-2-2zm-6 18h2v-2h-2v2zm-8-8H3v2h2v-2zm0 4H3v2h2v-2zm14-8h2V7h-2v2zm0 4h2v-2h-2v2zm0 4h2v-2h-2v2zM7 3h2v2H7V3zm12 16c1.1 0 2-.9 2-2h-2v2zm-4 2h2v-2h-2v2z"/></svg>
+            <span>Tümünü Seç</span>
+            <span class="ctx-shortcut">Ctrl+A</span>
+        </div>
+        <div class="context-menu-item context-menu-danger" id="ctx-delete">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            <span id="ctx-delete-label">Sil</span>
+            <span class="ctx-shortcut">Del</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/flowchart.js"></script>
+    <script src="js/interpreter.js"></script>
+    <script src="js/codegen.js"></script>
+    <script src="js/fprg-parser.js"></script>
+    <script src="js/examples.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

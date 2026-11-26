@@ -1,0 +1,427 @@
+/* Etapgorithm - Flowchart Shapes, Badges, and Animation Stylesheet */
+
+/* SVG Lines */
+.flow-line {
+    stroke: var(--node-line, #3b82f6);
+    stroke-width: 3.5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none; /* Connecting lines never intercept clicks */
+}
+
+/* Branch Labels */
+.branch-label {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    text-anchor: middle;
+}
+
+.branch-label.true-label {
+    fill: #10b981;
+}
+
+.branch-label.false-label {
+    fill: #ef4444;
+}
+
+/* Node Groups */
+.node-group {
+    cursor: pointer;
+}
+
+.node-group:hover .shape {
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.7));
+}
+
+.node-group.selected .shape {
+    stroke: #fbbf24 !important;
+    filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.8));
+}
+
+/* Active Executing Glow Animation */
+.node-group.executing .shape {
+    stroke: #10b981 !important;
+    stroke-width: 5px !important;
+    filter: drop-shadow(0 0 18px #10b981) !important;
+    animation: pulse-glow 0.8s infinite alternate;
+}
+
+@keyframes pulse-glow {
+    0% {
+        filter: drop-shadow(0 0 10px #10b981);
+    }
+    100% {
+        filter: drop-shadow(0 0 24px #34d399);
+    }
+}
+
+/* Specific Shapes Fill and Stroke */
+.shape {
+    stroke-width: 2.5px;
+    transition: all 0.15s ease;
+}
+
+/* Start / End Terminals */
+.shape-terminal {
+    stroke-width: 3px;
+}
+
+.shape-terminal-start {
+    fill: #064e3b;
+    stroke: #10b981;
+}
+
+.shape-terminal-end {
+    fill: #7f1d1d;
+    stroke: #ef4444;
+}
+
+.terminal-text {
+    fill: var(--node-terminal-text, #ffffff) !important;
+    font-size: 16px;
+    font-weight: 700;
+    text-anchor: middle;
+    font-family: var(--font-main);
+}
+
+/* Input (Parallelogram Cyan) */
+.shape-input {
+    fill: #0c4a6e;
+    stroke: #0284c7;
+}
+
+/* Output (Parallelogram Green) */
+.shape-output {
+    fill: #064e3b;
+    stroke: #059669;
+}
+
+/* Declare (Rectangle Amber/Yellow) */
+.shape-declare {
+    fill: #78350f;
+    stroke: #d97706;
+}
+
+/* Assign (Rectangle Orange) */
+.shape-assign {
+    fill: #7c2d12;
+    stroke: #ea580c;
+}
+
+/* If Decision (Diamond Red/Coral) */
+.shape-if {
+    fill: #581c87;
+    stroke: #a855f7;
+}
+
+/* Loops (Hexagon Purple) */
+.shape-loop {
+    fill: #3b0764;
+    stroke: #9333ea;
+}
+
+/* Comment (Dashed Gray) */
+.shape-comment {
+    fill: #1e293b;
+    stroke: #94a3b8;
+}
+
+.shape-default {
+    fill: #1e293b;
+    stroke: #475569;
+}
+
+/* Node Text Styles */
+.node-text {
+    fill: var(--node-text, #ffffff) !important;
+    font-size: 14px;
+    font-weight: 600;
+    text-anchor: middle;
+    font-family: var(--font-main);
+    pointer-events: none;
+}
+
+.if-text {
+    font-size: 13.5px;
+}
+
+.badge-text {
+    fill: var(--node-badge-text, rgba(255, 255, 255, 0.65)) !important;
+    font-size: 10px;
+    font-weight: 800;
+    font-family: var(--font-main);
+    letter-spacing: 0.5px;
+    pointer-events: none;
+}
+
+.center-badge {
+    text-anchor: middle;
+}
+
+/* Plus Buttons (Touch & Mouse Optimized - Jitter Free) */
+.plus-btn {
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.plus-hit-area {
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.plus-circle {
+    fill: rgba(239, 68, 68, 0.22);
+    stroke: #ef4444;
+    stroke-width: 2.5px;
+    transition: fill 0.15s ease, stroke 0.15s ease, filter 0.15s ease;
+    pointer-events: none;
+}
+
+.plus-text {
+    fill: #f87171;
+    font-size: 20px;
+    font-weight: bold;
+    text-anchor: middle;
+    font-family: var(--font-main);
+    pointer-events: none;
+    transition: fill 0.15s ease;
+}
+
+.plus-btn:hover .plus-circle {
+    fill: rgba(239, 68, 68, 0.85);
+    stroke: #fca5a5;
+    /* No scale transform to avoid jitter */
+}
+
+.plus-btn:hover .plus-text {
+    fill: #ffffff;
+}
+
+.plus-btn:active .plus-circle {
+    fill: #dc2626;
+    stroke: #ffffff;
+}
+
+/* Delete Button on Nodes (Jitter Free) */
+.delete-btn {
+    opacity: 0.35;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.node-group:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-circle {
+    fill: #ef4444;
+    stroke: #fca5a5;
+    stroke-width: 1.5px;
+    transition: fill 0.15s ease, stroke 0.15s ease;
+}
+
+.delete-btn:hover .delete-circle {
+    fill: #dc2626;
+    stroke: #ffffff;
+}
+
+.delete-x {
+    fill: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+    text-anchor: middle;
+    font-family: var(--font-main);
+    pointer-events: none;
+}
+
+
+/* Call (Function Call - Rectangle with dual side bars) */
+.shape-call {
+    fill: #134e4a;
+    stroke: #14b8a6;
+}
+
+/* ========================================================
+   THEME STYLES (10 Full Flowgorithm Authentic Themes)
+   ======================================================== */
+
+.flow-arrow {
+    fill: var(--node-line, #3b82f6);
+}
+
+.flow-join-circle {
+    fill: var(--node-line, #3b82f6);
+}
+
+/* 0. KOYU (MODERN DARK) TEMA */
+[data-theme="dark"] .flow-line { stroke: #3b82f6; }
+[data-theme="dark"] .flow-arrow { fill: #3b82f6; }
+[data-theme="dark"] .flow-join-circle { fill: #3b82f6; }
+[data-theme="dark"] .shape-terminal-start { fill: #064e3b; stroke: #10b981; }
+[data-theme="dark"] .shape-terminal-end { fill: #7f1d1d; stroke: #ef4444; }
+[data-theme="dark"] .shape-input { fill: #0c4a6e; stroke: #0284c7; }
+[data-theme="dark"] .shape-output { fill: #064e3b; stroke: #059669; }
+[data-theme="dark"] .shape-declare { fill: #78350f; stroke: #d97706; }
+[data-theme="dark"] .shape-assign { fill: #7c2d12; stroke: #ea580c; }
+[data-theme="dark"] .shape-if { fill: #581c87; stroke: #a855f7; }
+[data-theme="dark"] .shape-loop { fill: #3b0764; stroke: #9333ea; }
+[data-theme="dark"] .shape-call { fill: #134e4a; stroke: #14b8a6; }
+[data-theme="dark"] .shape-comment { fill: #1e293b; stroke: #94a3b8; }
+[data-theme="dark"] .branch-label.true-label { fill: #10b981; }
+[data-theme="dark"] .branch-label.false-label { fill: #ef4444; }
+
+/* 1. KLASİK AÇIK (STANDART) TEMA */
+[data-theme="classic"] .flow-line, [data-theme="flowgorithm"] .flow-line { stroke: #2563eb; }
+[data-theme="classic"] .flow-arrow, [data-theme="flowgorithm"] .flow-arrow { fill: #2563eb; }
+[data-theme="classic"] .flow-join-circle, [data-theme="flowgorithm"] .flow-join-circle { fill: #2563eb; }
+[data-theme="classic"] .shape-terminal-start, [data-theme="flowgorithm"] .shape-terminal-start { fill: #bbf7d0; stroke: #16a34a; }
+[data-theme="classic"] .shape-terminal-end, [data-theme="flowgorithm"] .shape-terminal-end { fill: #fecdd3; stroke: #e11d48; }
+[data-theme="classic"] .shape-input, [data-theme="flowgorithm"] .shape-input { fill: #bae6fd; stroke: #0284c7; }
+[data-theme="classic"] .shape-output, [data-theme="flowgorithm"] .shape-output { fill: #bbf7d0; stroke: #16a34a; }
+[data-theme="classic"] .shape-declare, [data-theme="flowgorithm"] .shape-declare { fill: #fef08a; stroke: #ca8a04; }
+[data-theme="classic"] .shape-assign, [data-theme="flowgorithm"] .shape-assign { fill: #fed7aa; stroke: #ea580c; }
+[data-theme="classic"] .shape-if, [data-theme="flowgorithm"] .shape-if { fill: #fbcfe8; stroke: #db2777; }
+[data-theme="classic"] .shape-loop, [data-theme="flowgorithm"] .shape-loop { fill: #e9d5ff; stroke: #9333ea; }
+[data-theme="classic"] .shape-call, [data-theme="flowgorithm"] .shape-call { fill: #ccfbf1; stroke: #0d9488; }
+[data-theme="classic"] .shape-comment, [data-theme="flowgorithm"] .shape-comment { fill: #f1f5f9; stroke: #64748b; }
+[data-theme="classic"] .branch-label.true-label, [data-theme="flowgorithm"] .branch-label.true-label { fill: #16a34a; }
+[data-theme="classic"] .branch-label.false-label, [data-theme="flowgorithm"] .branch-label.false-label { fill: #dc2626; }
+[data-theme="classic"] .plus-circle, [data-theme="flowgorithm"] .plus-circle { fill: rgba(239, 68, 68, 0.15); stroke: #ef4444; }
+[data-theme="classic"] .plus-text, [data-theme="flowgorithm"] .plus-text { fill: #ef4444; }
+
+/* 2. PASTEL TEMA */
+[data-theme="pastel"] .flow-line { stroke: #64748b; }
+[data-theme="pastel"] .flow-arrow { fill: #64748b; }
+[data-theme="pastel"] .flow-join-circle { fill: #64748b; }
+[data-theme="pastel"] .shape-terminal-start { fill: #dcfce7; stroke: #22c55e; }
+[data-theme="pastel"] .shape-terminal-end { fill: #ffe4e6; stroke: #f43f5e; }
+[data-theme="pastel"] .shape-input { fill: #e0f2fe; stroke: #38bdf8; }
+[data-theme="pastel"] .shape-output { fill: #dcfce7; stroke: #4ade80; }
+[data-theme="pastel"] .shape-declare { fill: #fef3c7; stroke: #f59e0b; }
+[data-theme="pastel"] .shape-assign { fill: #ffedd5; stroke: #fb923c; }
+[data-theme="pastel"] .shape-if { fill: #f3e8ff; stroke: #c084fc; }
+[data-theme="pastel"] .shape-loop { fill: #fae8ff; stroke: #e879f9; }
+[data-theme="pastel"] .shape-call { fill: #ccfbf1; stroke: #2dd4bf; }
+[data-theme="pastel"] .shape-comment { fill: #f5f5f4; stroke: #a8a29e; }
+[data-theme="pastel"] .branch-label.true-label { fill: #16a34a; }
+[data-theme="pastel"] .branch-label.false-label { fill: #dc2626; }
+[data-theme="pastel"] .plus-circle { fill: rgba(244, 63, 94, 0.15); stroke: #f43f5e; }
+[data-theme="pastel"] .plus-text { fill: #f43f5e; }
+
+/* 3. NEON TEMA */
+[data-theme="neon"] .flow-line { stroke: #00f0ff; }
+[data-theme="neon"] .flow-arrow { fill: #00f0ff; }
+[data-theme="neon"] .flow-join-circle { fill: #00f0ff; }
+[data-theme="neon"] .shape-terminal-start { fill: #022c22; stroke: #00ff9d; }
+[data-theme="neon"] .shape-terminal-end { fill: #450a0a; stroke: #ff0055; }
+[data-theme="neon"] .shape-input { fill: #082f49; stroke: #00f0ff; }
+[data-theme="neon"] .shape-output { fill: #022c22; stroke: #39ff14; }
+[data-theme="neon"] .shape-declare { fill: #422006; stroke: #ffe600; }
+[data-theme="neon"] .shape-assign { fill: #431407; stroke: #ff7700; }
+[data-theme="neon"] .shape-if { fill: #2e1065; stroke: #bf00ff; }
+[data-theme="neon"] .shape-loop { fill: #3b0764; stroke: #ff00bf; }
+[data-theme="neon"] .shape-call { fill: #042f2e; stroke: #00ffd5; }
+[data-theme="neon"] .shape-comment { fill: #0c0d16; stroke: #64748b; }
+[data-theme="neon"] .branch-label.true-label { fill: #00ff9d; }
+[data-theme="neon"] .branch-label.false-label { fill: #ff0055; }
+[data-theme="neon"] .plus-circle { fill: rgba(255, 0, 85, 0.25); stroke: #ff0055; }
+[data-theme="neon"] .plus-text { fill: #ff0055; }
+
+/* 4. YAZICI (SİYAH-BEYAZ) TEMA */
+[data-theme="print"] .flow-line { stroke: #000000 !important; stroke-width: 3px !important; }
+[data-theme="print"] .flow-arrow { fill: #000000 !important; }
+[data-theme="print"] .flow-join-circle { fill: #000000 !important; }
+[data-theme="print"] .shape { fill: #ffffff !important; stroke: #000000 !important; stroke-width: 2.5px !important; }
+[data-theme="print"] .shape-comment { stroke-dasharray: 4,4 !important; }
+[data-theme="print"] .branch-label.true-label, [data-theme="print"] .branch-label.false-label { fill: #000000 !important; font-weight: 800; }
+[data-theme="print"] .plus-circle { fill: rgba(0, 0, 0, 0.06) !important; stroke: #000000 !important; }
+[data-theme="print"] .plus-text { fill: #000000 !important; }
+[data-theme="print"] .node-group.selected .shape { stroke: #000000 !important; stroke-width: 4px !important; filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.4)) !important; }
+
+/* 5. RETRO TERMINAL (YEŞİL MONİTÖR) */
+[data-theme="retro"] .flow-line { stroke: #22c55e; }
+[data-theme="retro"] .flow-arrow { fill: #22c55e; }
+[data-theme="retro"] .flow-join-circle { fill: #22c55e; }
+[data-theme="retro"] .shape-terminal-start { fill: #052e16; stroke: #22c55e; }
+[data-theme="retro"] .shape-terminal-end { fill: #052e16; stroke: #16a34a; }
+[data-theme="retro"] .shape-input { fill: #052e16; stroke: #4ade80; }
+[data-theme="retro"] .shape-output { fill: #022c22; stroke: #22c55e; }
+[data-theme="retro"] .shape-declare { fill: #064e3b; stroke: #86efac; }
+[data-theme="retro"] .shape-assign { fill: #052e16; stroke: #4ade80; }
+[data-theme="retro"] .shape-if { fill: #064e3b; stroke: #22c55e; }
+[data-theme="retro"] .shape-loop { fill: #022c22; stroke: #4ade80; }
+[data-theme="retro"] .shape-call { fill: #064e3b; stroke: #10b981; }
+[data-theme="retro"] .shape-comment { fill: #021a0b; stroke: #15803d; }
+[data-theme="retro"] .branch-label.true-label { fill: #4ade80; }
+[data-theme="retro"] .branch-label.false-label { fill: #16a34a; }
+[data-theme="retro"] .plus-circle { fill: rgba(34, 197, 94, 0.2); stroke: #22c55e; }
+[data-theme="retro"] .plus-text { fill: #4ade80; }
+
+/* 6. OKYANUS (OCEAN) */
+[data-theme="ocean"] .flow-line { stroke: #38bdf8; }
+[data-theme="ocean"] .flow-arrow { fill: #38bdf8; }
+[data-theme="ocean"] .flow-join-circle { fill: #38bdf8; }
+[data-theme="ocean"] .shape-terminal-start { fill: #075985; stroke: #38bdf8; }
+[data-theme="ocean"] .shape-terminal-end { fill: #1e3a8a; stroke: #60a5fa; }
+[data-theme="ocean"] .shape-input { fill: #0369a1; stroke: #7dd3fc; }
+[data-theme="ocean"] .shape-output { fill: #0f766e; stroke: #2dd4bf; }
+[data-theme="ocean"] .shape-declare { fill: #0284c7; stroke: #bae6fd; }
+[data-theme="ocean"] .shape-assign { fill: #1d4ed8; stroke: #93c5fd; }
+[data-theme="ocean"] .shape-if { fill: #0e7490; stroke: #67e8f9; }
+[data-theme="ocean"] .shape-loop { fill: #1e40af; stroke: #60a5fa; }
+[data-theme="ocean"] .shape-call { fill: #115e59; stroke: #5eead4; }
+[data-theme="ocean"] .shape-comment { fill: #0c4a6e; stroke: #38bdf8; }
+[data-theme="ocean"] .branch-label.true-label { fill: #38bdf8; }
+[data-theme="ocean"] .branch-label.false-label { fill: #f87171; }
+[data-theme="ocean"] .plus-circle { fill: rgba(56, 189, 248, 0.2); stroke: #38bdf8; }
+[data-theme="ocean"] .plus-text { fill: #38bdf8; }
+
+/* 7. GÜN BATIMI (SUNSET) */
+[data-theme="sunset"] .flow-line { stroke: #fb7185; }
+[data-theme="sunset"] .flow-arrow { fill: #fb7185; }
+[data-theme="sunset"] .flow-join-circle { fill: #fb7185; }
+[data-theme="sunset"] .shape-terminal-start { fill: #9f1239; stroke: #fb7185; }
+[data-theme="sunset"] .shape-terminal-end { fill: #881337; stroke: #f43f5e; }
+[data-theme="sunset"] .shape-input { fill: #c2410c; stroke: #fdba74; }
+[data-theme="sunset"] .shape-output { fill: #b45309; stroke: #fde047; }
+[data-theme="sunset"] .shape-declare { fill: #be185d; stroke: #f472b6; }
+[data-theme="sunset"] .shape-assign { fill: #9a3412; stroke: #fb923c; }
+[data-theme="sunset"] .shape-if { fill: #701a75; stroke: #e879f9; }
+[data-theme="sunset"] .shape-loop { fill: #581c87; stroke: #c084fc; }
+[data-theme="sunset"] .shape-call { fill: #831843; stroke: #fda4af; }
+[data-theme="sunset"] .shape-comment { fill: #4c0519; stroke: #fb7185; }
+[data-theme="sunset"] .branch-label.true-label { fill: #fb923c; }
+[data-theme="sunset"] .branch-label.false-label { fill: #f43f5e; }
+[data-theme="sunset"] .plus-circle { fill: rgba(244, 63, 94, 0.2); stroke: #fb7185; }
+[data-theme="sunset"] .plus-text { fill: #fb7185; }
+
+/* 8. MAVİ TASLAK (BLUEPRINT) */
+[data-theme="blueprint"] .flow-line { stroke: #ffffff !important; stroke-width: 3.5px !important; }
+[data-theme="blueprint"] .flow-arrow { fill: #ffffff !important; }
+[data-theme="blueprint"] .flow-join-circle { fill: #ffffff !important; }
+[data-theme="blueprint"] .shape { fill: rgba(14, 116, 144, 0.45) !important; stroke: #ffffff !important; stroke-width: 2.5px !important; }
+[data-theme="blueprint"] .shape-comment { stroke-dasharray: 4,4 !important; }
+[data-theme="blueprint"] .branch-label.true-label { fill: #a5d8ff !important; font-weight: 800; }
+[data-theme="blueprint"] .branch-label.false-label { fill: #fca5a5 !important; font-weight: 800; }
+[data-theme="blueprint"] .plus-circle { fill: rgba(255, 255, 255, 0.15) !important; stroke: #ffffff !important; }
+[data-theme="blueprint"] .plus-text { fill: #ffffff !important; }
+
+/* 9. ZARİF (COUTURE) */
+[data-theme="couture"] .flow-line { stroke: #d4b483; }
+[data-theme="couture"] .flow-arrow { fill: #d4b483; }
+[data-theme="couture"] .flow-join-circle { fill: #d4b483; }
+[data-theme="couture"] .shape-terminal-start { fill: #3f3b33; stroke: #d4b483; }
+[data-theme="couture"] .shape-terminal-end { fill: #4a3b32; stroke: #c49a60; }
+[data-theme="couture"] .shape-input { fill: #3b4238; stroke: #a3b18a; }
+[data-theme="couture"] .shape-output { fill: #484136; stroke: #ddbea9; }
+[data-theme="couture"] .shape-declare { fill: #443c39; stroke: #d4a373; }
+[data-theme="couture"] .shape-assign { fill: #54453b; stroke: #cb997e; }
+[data-theme="couture"] .shape-if { fill: #3c3947; stroke: #b7b7a4; }
+[data-theme="couture"] .shape-loop { fill: #42384a; stroke: #d4b483; }
+[data-theme="couture"] .shape-call { fill: #38423f; stroke: #a5a58d; }
+[data-theme="couture"] .shape-comment { fill: #2c2925; stroke: #8d8579; }
+[data-theme="couture"] .branch-label.true-label { fill: #a3b18a; }
+[data-theme="couture"] .branch-label.false-label { fill: #cb997e; }
+[data-theme="couture"] .plus-circle { fill: rgba(212, 180, 131, 0.2); stroke: #d4b483; }
+[data-theme="couture"] .plus-text { fill: #d4b483; }
